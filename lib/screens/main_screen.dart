@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../mortgage.dart';
+import '../mortgage_provider.dart';
 import 'modify_screen.dart';
 
 /// Left screen: shows the mortgage data and the computed payments.
@@ -12,21 +13,15 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  Mortgage _mortgage = Mortgage();
   bool _termsAccepted = false;
 
-  /// Modify button: go to the right screen, passing the current data,
-  /// and wait for the updated data when the user presses Done.
-  Future<void> _modifyData() async {
-    final updated = await Navigator.push<Mortgage>(
+  /// Modify button: go to the right screen. Both screens share the data
+  /// through the Provider, so nothing needs to be passed back and forth.
+  void _modifyData() {
+    Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => ModifyScreen(mortgage: Mortgage.copy(_mortgage)),
-      ),
+      MaterialPageRoute(builder: (context) => const ModifyScreen()),
     );
-    if (updated != null) {
-      setState(() => _mortgage = updated);
-    }
   }
 
   /// Terms and Conditions checkbox: confirm with an AlertDialog.
@@ -79,6 +74,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // watch() rebuilds this screen whenever the mortgage data changes.
+    final mortgage = context.watch<MortgageProvider>().mortgage;
     return Scaffold(
       appBar: AppBar(
         title: const Text('MortgageV0'),
@@ -88,12 +85,12 @@ class _MainScreenState extends State<MainScreen> {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          _row('Amount', _mortgage.formattedAmount),
-          _row('Years', '${_mortgage.years}'),
-          _row('Interest Rate', _mortgage.formattedRate),
+          _row('Amount', mortgage.formattedAmount),
+          _row('Years', '${mortgage.years}'),
+          _row('Interest Rate', mortgage.formattedRate),
           const Divider(color: Colors.red, thickness: 2),
-          _row('Monthly Payment', _mortgage.formattedMonthlyPayment()),
-          _row('Total Payment', _mortgage.formattedTotalPayment()),
+          _row('Monthly Payment', mortgage.formattedMonthlyPayment()),
+          _row('Total Payment', mortgage.formattedTotalPayment()),
           CheckboxListTile(
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,

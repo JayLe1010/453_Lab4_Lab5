@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../mortgage.dart';
+import '../mortgage_provider.dart';
 
 /// Right screen: lets the user change years, amount, and interest rate.
 class ModifyScreen extends StatefulWidget {
-  const ModifyScreen({super.key, required this.mortgage});
-
-  final Mortgage mortgage;
+  const ModifyScreen({super.key});
 
   @override
   State<ModifyScreen> createState() => _ModifyScreenState();
@@ -27,7 +26,9 @@ class _ModifyScreenState extends State<ModifyScreen> {
   @override
   void initState() {
     super.initState();
-    final m = widget.mortgage;
+    // Start from the shared data, which the Provider loaded from
+    // SharedPreferences, so the last inputs are shown after a relaunch.
+    final m = context.read<MortgageProvider>().mortgage;
     _amountController =
         TextEditingController(text: m.amount.toStringAsFixed(2));
     _years = _yearOptions.contains(m.years) ? m.years : 30;
@@ -44,7 +45,8 @@ class _ModifyScreenState extends State<ModifyScreen> {
     super.dispose();
   }
 
-  /// Done button: validate, update the model, and return to the left screen.
+  /// Done button: validate, update the shared data, and return to the left
+  /// screen.
   void _done() {
     final amount = double.tryParse(_amountController.text.trim());
     if (amount == null || amount <= 0) {
@@ -53,11 +55,13 @@ class _ModifyScreenState extends State<ModifyScreen> {
       );
       return;
     }
-    final m = widget.mortgage
-      ..amount = amount
-      ..years = _years
-      ..rate = _ratePercent / 100;
-    Navigator.pop(context, m);
+    // Update the shared data (main screen rebuilds) and save it.
+    context.read<MortgageProvider>().update(
+          amount: amount,
+          years: _years,
+          rate: _ratePercent / 100,
+        );
+    Navigator.pop(context);
   }
 
   @override

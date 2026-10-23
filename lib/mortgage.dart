@@ -9,13 +9,6 @@ class Mortgage {
 
   Mortgage();
 
-  /// Creates a copy so the Modify screen can edit without touching the
-  /// original until the user presses Done.
-  Mortgage.copy(Mortgage other)
-      : _amount = other._amount,
-        _years = other._years,
-        _rate = other._rate;
-
   double get amount => _amount;
   set amount(double newAmount) {
     if (newAmount >= 0) _amount = newAmount;
