@@ -32,10 +32,27 @@ test/widget_test.dart            # add → edit → restart → delete, on real 
 
 ## Run
 
-Run it on an Android emulator or iOS simulator (sqflite does not run on web):
+### In Chrome
 
 ```sh
 flutter pub get
+flutter run -d chrome --web-port=8080
+```
+
+On the web, sqflite runs through `sqflite_common_ffi_web` (set up in
+`main.dart`; it uses `web/sqlite3.wasm` and `web/sqflite_sw.js`). Notes are
+kept in Chrome's storage for `localhost:8080`. **Always use the same
+`--web-port`**: browser storage belongs to one port, so a different port shows
+an empty list.
+
+### On Android / iOS
+
+```sh
 flutter run
+```
+
+### Tests
+
+```sh
 flutter test
 ```
